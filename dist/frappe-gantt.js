@@ -37,6 +37,20 @@ const month_names = {
         'Октябрь',
         'Ноябрь',
         'Декабрь'
+    ],
+    ptBr: [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro'
     ]
 };
 
@@ -954,6 +968,13 @@ class Popup {
     }
 }
 
+const DAY$1 = 'Day';
+const HALF_DAY = 'Half Day';
+const MONTH$1 = 'Month';
+const QUARTER_DAY = 'Quarter Day';
+const WEEK = 'Week';
+const YEAR$1 = 'Year';
+
 class Gantt {
     constructor(wrapper, tasks, options) {
         this.setup_wrapper(wrapper);
@@ -1016,19 +1037,12 @@ class Gantt {
             header_height: 50,
             column_width: 30,
             step: 24,
-            view_modes: [
-                'Quarter Day',
-                'Half Day',
-                'Day',
-                'Week',
-                'Month',
-                'Year'
-            ],
+            view_modes: [QUARTER_DAY, HALF_DAY, DAY$1, WEEK, MONTH$1, YEAR$1],
             bar_height: 20,
             bar_corner_radius: 3,
             arrow_curve: 5,
             padding: 18,
-            view_mode: 'Day',
+            view_mode: DAY$1,
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
@@ -1128,22 +1142,22 @@ class Gantt {
     update_view_scale(view_mode) {
         this.options.view_mode = view_mode;
 
-        if (view_mode === 'Day') {
+        if (view_mode === DAY$1) {
             this.options.step = 24;
             this.options.column_width = 38;
-        } else if (view_mode === 'Half Day') {
+        } else if (view_mode === HALF_DAY) {
             this.options.step = 24 / 2;
             this.options.column_width = 38;
-        } else if (view_mode === 'Quarter Day') {
+        } else if (view_mode === QUARTER_DAY) {
             this.options.step = 24 / 4;
             this.options.column_width = 38;
-        } else if (view_mode === 'Week') {
+        } else if (view_mode === WEEK) {
             this.options.step = 24 * 7;
             this.options.column_width = 140;
-        } else if (view_mode === 'Month') {
+        } else if (view_mode === MONTH$1) {
             this.options.step = 24 * 30;
             this.options.column_width = 120;
-        } else if (view_mode === 'Year') {
+        } else if (view_mode === YEAR$1) {
             this.options.step = 24 * 365;
             this.options.column_width = 120;
         }
@@ -1194,9 +1208,9 @@ class Gantt {
             if (!cur_date) {
                 cur_date = date_utils.clone(this.gantt_start);
             } else {
-                if (this.view_is('Year')) {
+                if (this.view_is(YEAR$1)) {
                     cur_date = date_utils.add(cur_date, 1, 'year');
-                } else if (this.view_is('Month')) {
+                } else if (this.view_is(MONTH$1)) {
                     cur_date = date_utils.add(cur_date, 1, 'month');
                 } else {
                     cur_date = date_utils.add(
@@ -1325,19 +1339,19 @@ class Gantt {
         for (let date of this.dates) {
             let tick_class = 'tick';
             // thick tick for monday
-            if (this.view_is('Day') && date.getDate() === 1) {
+            if (this.view_is(DAY$1) && date.getDate() === 1) {
                 tick_class += ' thick';
             }
             // thick tick for first week
             if (
-                this.view_is('Week') &&
+                this.view_is(WEEK) &&
                 date.getDate() >= 1 &&
                 date.getDate() < 8
             ) {
                 tick_class += ' thick';
             }
             // thick ticks for quarters
-            if (this.view_is('Month') && (date.getMonth() + 1) % 3 === 0) {
+            if (this.view_is(MONTH$1) && (date.getMonth() + 1) % 3 === 0) {
                 tick_class += ' thick';
             }
 
@@ -1347,7 +1361,7 @@ class Gantt {
                 append_to: this.layers.grid
             });
 
-            if (this.view_is('Month')) {
+            if (this.view_is(MONTH$1)) {
                 tick_x +=
                     date_utils.get_days_in_month(date) *
                     this.options.column_width /
@@ -1360,7 +1374,7 @@ class Gantt {
 
     make_grid_highlights() {
         // highlight today's date
-        if (this.view_is('Day')) {
+        if (this.view_is(DAY$1)) {
             const x =
                 date_utils.diff(date_utils.today(), this.gantt_start, 'hour') /
                 this.options.step *
@@ -1773,7 +1787,7 @@ class Gantt {
                 (rem < this.options.column_width / 14
                     ? 0
                     : this.options.column_width / 7);
-        } else if (this.view_is('Month')) {
+        } else if (this.view_is(MONTH$1)) {
             rem = dx % (this.options.column_width / 30);
             position =
                 odx -
