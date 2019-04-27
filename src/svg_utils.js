@@ -1,3 +1,4 @@
+import { isObject } from './utils/object';
 import { isString } from './utils/string';
 
 export function $(expr, con) {
@@ -122,7 +123,7 @@ $.attr = (element, attr, value) => {
     return element.getAttribute(attr);
   }
 
-  if (typeof attr === 'object') {
+  if (isObject(attr)) {
     for (let key in attr) {
       $.attr(element, key, attr[key]);
     }

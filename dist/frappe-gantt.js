@@ -271,6 +271,8 @@ function padStart(str, targetLength, padString) {
   }
 }
 
+const isObject = (v) => (typeof v === 'object');
+
 function $(expr, con) {
   return isString(expr) ? (con || document).querySelector(expr) : expr || null;
 }
@@ -393,7 +395,7 @@ $.attr = (element, attr, value) => {
     return element.getAttribute(attr);
   }
 
-  if (typeof attr === 'object') {
+  if (isObject(attr)) {
     for (let key in attr) {
       $.attr(element, key, attr[key]);
     }
