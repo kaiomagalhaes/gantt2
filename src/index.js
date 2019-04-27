@@ -4,6 +4,7 @@ import { $, createSVG } from './svg_utils';
 import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
+import { getPeriod } from './utils/dates/period';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -225,35 +226,12 @@ export default class Gantt {
   }
 
   setup_gantt_dates() {
-    this.gantt_start = this.gantt_end = null;
+    const { view_mode } = this.options;
+    // @TODO: add the option to decide if it should add padding
+    const { start, end } = getPeriod(this.tasks, true, view_mode);
 
-    for (let task of this.tasks) {
-      // set global start and end date
-      if (!this.gantt_start || task._start < this.gantt_start) {
-        this.gantt_start = task._start;
-      }
-      if (!this.gantt_end || task._end > this.gantt_end) {
-        this.gantt_end = task._end;
-      }
-    }
-
-    this.gantt_start = date_utils.start_of(this.gantt_start, DAY);
-    this.gantt_end = date_utils.start_of(this.gantt_end, DAY);
-
-    // add date padding on both sides
-    if (this.view_is([SCALE_QUARTER_DAY, SCALE_HALF_DAY])) {
-      this.gantt_start = date_utils.add(this.gantt_start, -7, DAY);
-      this.gantt_end = date_utils.add(this.gantt_end, 7, DAY);
-    } else if (this.view_is(SCALE_MONTH)) {
-      this.gantt_start = date_utils.start_of(this.gantt_start, YEAR);
-      this.gantt_end = date_utils.add(this.gantt_end, 1, YEAR);
-    } else if (this.view_is(SCALE_YEAR)) {
-      this.gantt_start = date_utils.add(this.gantt_start, -2, YEAR);
-      this.gantt_end = date_utils.add(this.gantt_end, 2, YEAR);
-    } else {
-      this.gantt_start = date_utils.add(this.gantt_start, -1, MONTH);
-      this.gantt_end = date_utils.add(this.gantt_end, 1, MONTH);
-    }
+    this.gantt_start = start;
+    this.gantt_end = end;
   }
 
   setup_date_values() {

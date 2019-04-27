@@ -964,12 +964,82 @@ class Popup {
   }
 }
 
+const isViewMode = (modes, viewMode) => {
+  if (isString(modes)) {
+    return viewMode === modes;
+  }
+
+  if (Array.isArray(modes)) {
+    return modes.some(mode => viewMode === mode);
+  }
+
+  return false;
+};
+
 const SCALE_DAY = 'Day';
 const SCALE_HALF_DAY = 'Half Day';
 const SCALE_MONTH = 'Month';
 const SCALE_QUARTER_DAY = 'Quarter Day';
 const SCALE_WEEK = 'Week';
 const SCALE_YEAR = 'Year';
+
+const getPeriodWithPadding = (period, viewMode) => {
+  const { start, end } = period;
+  let startWithPadding = null;
+  let endWithPadding = null;
+
+  if (isViewMode(viewMode, [SCALE_QUARTER_DAY, SCALE_HALF_DAY])) {
+    startWithPadding = date_utils.add(start, -7, DAY);
+    endWithPadding = date_utils.add(end, 7, DAY);
+  } else if (isViewMode(viewMode, SCALE_MONTH)) {
+    startWithPadding = date_utils.start_of(start, YEAR);
+    endWithPadding = date_utils.add(end, 1, YEAR);
+  } else if (isViewMode(viewMode, SCALE_YEAR)) {
+    startWithPadding = date_utils.add(start, -2, YEAR);
+    endWithPadding = date_utils.add(end, 2, YEAR);
+  } else {
+    startWithPadding = date_utils.add(start, -1, MONTH);
+    endWithPadding = date_utils.add(end, 1, MONTH);
+  }
+
+  return {
+    start: startWithPadding,
+    end: endWithPadding
+  };
+};
+
+const getSimplePeriod = tasks => {
+  let start = null;
+  let end = null;
+
+  for (let task of tasks) {
+    // set global start and end date
+    if (!start || task._start < start) {
+      start = task._start;
+    }
+    if (!end || task._end > end) {
+      end = task._end;
+    }
+  }
+
+  start = date_utils.start_of(start, DAY);
+  end = date_utils.start_of(end, DAY);
+
+  return {
+    start,
+    end
+  };
+};
+
+const getPeriod = (tasks, withPadding, viewMode) => {
+  const period = getSimplePeriod(tasks);
+
+  if (withPadding) {
+    return getPeriodWithPadding(period, viewMode);
+  }
+
+  return period;
+};
 
 class Gantt {
   constructor(wrapper, tasks, options) {
@@ -1172,35 +1242,12 @@ class Gantt {
   }
 
   setup_gantt_dates() {
-    this.gantt_start = this.gantt_end = null;
+    const { view_mode } = this.options;
+    // @TODO: add the option to decide if it should add padding
+    const { start, end } = getPeriod(this.tasks, true, view_mode);
 
-    for (let task of this.tasks) {
-      // set global start and end date
-      if (!this.gantt_start || task._start < this.gantt_start) {
-        this.gantt_start = task._start;
-      }
-      if (!this.gantt_end || task._end > this.gantt_end) {
-        this.gantt_end = task._end;
-      }
-    }
-
-    this.gantt_start = date_utils.start_of(this.gantt_start, DAY);
-    this.gantt_end = date_utils.start_of(this.gantt_end, DAY);
-
-    // add date padding on both sides
-    if (this.view_is([SCALE_QUARTER_DAY, SCALE_HALF_DAY])) {
-      this.gantt_start = date_utils.add(this.gantt_start, -7, DAY);
-      this.gantt_end = date_utils.add(this.gantt_end, 7, DAY);
-    } else if (this.view_is(SCALE_MONTH)) {
-      this.gantt_start = date_utils.start_of(this.gantt_start, YEAR);
-      this.gantt_end = date_utils.add(this.gantt_end, 1, YEAR);
-    } else if (this.view_is(SCALE_YEAR)) {
-      this.gantt_start = date_utils.add(this.gantt_start, -2, YEAR);
-      this.gantt_end = date_utils.add(this.gantt_end, 2, YEAR);
-    } else {
-      this.gantt_start = date_utils.add(this.gantt_start, -1, MONTH);
-      this.gantt_end = date_utils.add(this.gantt_end, 1, MONTH);
-    }
+    this.gantt_start = start;
+    this.gantt_end = end;
   }
 
   setup_date_values() {
