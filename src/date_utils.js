@@ -1,3 +1,4 @@
+import { isString } from './utils/string';
 import {
   YEAR,
   MONTH,
@@ -14,7 +15,7 @@ export default {
     if (date instanceof Date) {
       return date;
     }
-    if (typeof date === 'string') {
+    if (isString(date)) {
       let date_parts, time_parts;
       const parts = date.split(' ');
 

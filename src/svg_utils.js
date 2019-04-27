@@ -1,7 +1,7 @@
+import { isString } from './utils/string';
+
 export function $(expr, con) {
-  return typeof expr === 'string'
-    ? (con || document).querySelector(expr)
-    : expr || null;
+  return isString(expr) ? (con || document).querySelector(expr) : expr || null;
 }
 
 export function createSVG(tag, attrs) {
@@ -118,7 +118,7 @@ $.closest = (selector, element) => {
 };
 
 $.attr = (element, attr, value) => {
-  if (!value && typeof attr === 'string') {
+  if (!value && isString(attr)) {
     return element.getAttribute(attr);
   }
 

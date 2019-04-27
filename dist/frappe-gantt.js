@@ -1,6 +1,8 @@
 var Gantt = (function () {
 'use strict';
 
+const isString = (v) => (typeof v === 'string');
+
 const YEAR = 'year';
 const MONTH = 'month';
 const DAY = 'day';
@@ -59,7 +61,7 @@ var date_utils = {
     if (date instanceof Date) {
       return date;
     }
-    if (typeof date === 'string') {
+    if (isString(date)) {
       let date_parts, time_parts;
       const parts = date.split(' ');
 
@@ -270,9 +272,7 @@ function padStart(str, targetLength, padString) {
 }
 
 function $(expr, con) {
-  return typeof expr === 'string'
-    ? (con || document).querySelector(expr)
-    : expr || null;
+  return isString(expr) ? (con || document).querySelector(expr) : expr || null;
 }
 
 function createSVG(tag, attrs) {
@@ -389,7 +389,7 @@ $.closest = (selector, element) => {
 };
 
 $.attr = (element, attr, value) => {
-  if (!value && typeof attr === 'string') {
+  if (!value && isString(attr)) {
     return element.getAttribute(attr);
   }
 
@@ -983,7 +983,7 @@ class Gantt {
     let svg_element, wrapper_element;
 
     // CSS Selector is passed
-    if (typeof element === 'string') {
+    if (isString(element)) {
       element = document.querySelector(element);
     }
 
@@ -1095,7 +1095,7 @@ class Gantt {
       }
 
       // dependencies
-      if (typeof task.dependencies === 'string' || !task.dependencies) {
+      if (isString(task.dependencies) || !task.dependencies) {
         let deps = [];
         if (task.dependencies) {
           deps = task.dependencies
@@ -1792,7 +1792,7 @@ class Gantt {
   }
 
   view_is(modes) {
-    if (typeof modes === 'string') {
+    if (isString(modes)) {
       return this.options.view_mode === modes;
     }
 

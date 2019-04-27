@@ -1,3 +1,4 @@
+import { isString } from './utils/string';
 import date_utils from './date_utils';
 import { $, createSVG } from './svg_utils';
 import Bar from './bar';
@@ -37,7 +38,7 @@ export default class Gantt {
     let svg_element, wrapper_element;
 
     // CSS Selector is passed
-    if (typeof element === 'string') {
+    if (isString(element)) {
       element = document.querySelector(element);
     }
 
@@ -149,7 +150,7 @@ export default class Gantt {
       }
 
       // dependencies
-      if (typeof task.dependencies === 'string' || !task.dependencies) {
+      if (isString(task.dependencies) || !task.dependencies) {
         let deps = [];
         if (task.dependencies) {
           deps = task.dependencies
@@ -846,7 +847,7 @@ export default class Gantt {
   }
 
   view_is(modes) {
-    if (typeof modes === 'string') {
+    if (isString(modes)) {
       return this.options.view_mode === modes;
     }
 
