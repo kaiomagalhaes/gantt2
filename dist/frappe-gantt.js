@@ -1060,7 +1060,7 @@ class Gantt {
       task._end = date_utils.parse(task.end);
 
       // make task invalid if duration too large
-      if (date_utils.diff(task._end, task._start, 'year') > 10) {
+      if (date_utils.diff(task._end, task._start, YEAR) > 10) {
         task.end = null;
       }
 
@@ -1071,22 +1071,22 @@ class Gantt {
       if (!task.start && !task.end) {
         const today = date_utils.today();
         task._start = today;
-        task._end = date_utils.add(today, 2, 'day');
+        task._end = date_utils.add(today, 2, DAY);
       }
 
       if (!task.start && task.end) {
-        task._start = date_utils.add(task._end, -2, 'day');
+        task._start = date_utils.add(task._end, -2, DAY);
       }
 
       if (task.start && !task.end) {
-        task._end = date_utils.add(task._start, 2, 'day');
+        task._end = date_utils.add(task._start, 2, DAY);
       }
 
       // if hours is not set, assume the last day is full day
       // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
       const task_end_values = date_utils.get_date_values(task._end);
       if (task_end_values.slice(3).every(d => d === 0)) {
-        task._end = date_utils.add(task._end, 24, 'hour');
+        task._end = date_utils.add(task._end, 24, HOUR);
       }
 
       // invalid flag
@@ -1182,22 +1182,22 @@ class Gantt {
       }
     }
 
-    this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
-    this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
+    this.gantt_start = date_utils.start_of(this.gantt_start, DAY);
+    this.gantt_end = date_utils.start_of(this.gantt_end, DAY);
 
     // add date padding on both sides
-    if (this.view_is(['Quarter Day', 'Half Day'])) {
-      this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
-      this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
-    } else if (this.view_is('Month')) {
-      this.gantt_start = date_utils.start_of(this.gantt_start, 'year');
-      this.gantt_end = date_utils.add(this.gantt_end, 1, 'year');
-    } else if (this.view_is('Year')) {
-      this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
-      this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
+    if (this.view_is([SCALE_QUARTER_DAY, SCALE_HALF_DAY])) {
+      this.gantt_start = date_utils.add(this.gantt_start, -7, DAY);
+      this.gantt_end = date_utils.add(this.gantt_end, 7, DAY);
+    } else if (this.view_is(SCALE_MONTH)) {
+      this.gantt_start = date_utils.start_of(this.gantt_start, YEAR);
+      this.gantt_end = date_utils.add(this.gantt_end, 1, YEAR);
+    } else if (this.view_is(SCALE_YEAR)) {
+      this.gantt_start = date_utils.add(this.gantt_start, -2, YEAR);
+      this.gantt_end = date_utils.add(this.gantt_end, 2, YEAR);
     } else {
-      this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
-      this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+      this.gantt_start = date_utils.add(this.gantt_start, -1, MONTH);
+      this.gantt_end = date_utils.add(this.gantt_end, 1, MONTH);
     }
   }
 
@@ -1210,11 +1210,11 @@ class Gantt {
         cur_date = date_utils.clone(this.gantt_start);
       } else {
         if (this.view_is(SCALE_YEAR)) {
-          cur_date = date_utils.add(cur_date, 1, 'year');
+          cur_date = date_utils.add(cur_date, 1, YEAR);
         } else if (this.view_is(SCALE_MONTH)) {
-          cur_date = date_utils.add(cur_date, 1, 'month');
+          cur_date = date_utils.add(cur_date, 1, MONTH);
         } else {
-          cur_date = date_utils.add(cur_date, this.options.step, 'hour');
+          cur_date = date_utils.add(cur_date, this.options.step, HOUR);
         }
       }
       this.dates.push(cur_date);
@@ -1369,7 +1369,7 @@ class Gantt {
     // highlight today's date
     if (this.view_is(SCALE_DAY)) {
       const x =
-        date_utils.diff(date_utils.today(), this.gantt_start, 'hour') /
+        date_utils.diff(date_utils.today(), this.gantt_start, HOUR) /
         this.options.step *
         this.options.column_width;
       const y = 0;
@@ -1430,7 +1430,7 @@ class Gantt {
 
   get_date_info(date, last_date, i) {
     if (!last_date) {
-      last_date = date_utils.add(date, 1, 'year');
+      last_date = date_utils.add(date, 1, YEAR);
     }
     const date_text = {
       'Quarter Day_lower': date_utils.format(date, 'HH', this.options.language),
@@ -1561,7 +1561,7 @@ class Gantt {
     const hours_before_first_task = date_utils.diff(
       this.get_oldest_starting_date(),
       this.gantt_start,
-      'hour'
+      HOUR
     );
 
     const scroll_pos =
