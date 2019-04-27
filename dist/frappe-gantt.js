@@ -9,7 +9,7 @@ const MINUTE = 'minute';
 const SECOND = 'second';
 const MILLISECOND = 'millisecond';
 
-const month_names = {
+const MONTH_NAMES = {
   en: [
     'January',
     'February',
@@ -116,8 +116,8 @@ var date_utils = {
       ss: values[5],
       SSS: values[6],
       D: values[2],
-      MMMM: month_names[lang][+values[1]],
-      MMM: month_names[lang][+values[1]]
+      MMMM: MONTH_NAMES[lang][+values[1]],
+      MMM: MONTH_NAMES[lang][+values[1]]
     };
 
     let str = format_string;

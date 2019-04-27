@@ -7,51 +7,7 @@ import {
   SECOND,
   MILLISECOND
 } from './utils/enums/time';
-
-const month_names = {
-  en: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ],
-  ru: [
-    'Январь',
-    'Февраль',
-    'Март',
-    'Апрель',
-    'Май',
-    'Июнь',
-    'Июль',
-    'Август',
-    'Сентябрь',
-    'Октябрь',
-    'Ноябрь',
-    'Декабрь'
-  ],
-  ptBr: [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro'
-  ]
-};
+import { MONTH_NAMES } from './utils/enums/i18n';
 
 export default {
   parse(date, date_separator = '-', time_separator = /[.:]/) {
@@ -115,8 +71,8 @@ export default {
       ss: values[5],
       SSS: values[6],
       D: values[2],
-      MMMM: month_names[lang][+values[1]],
-      MMM: month_names[lang][+values[1]]
+      MMMM: MONTH_NAMES[lang][+values[1]],
+      MMM: MONTH_NAMES[lang][+values[1]]
     };
 
     let str = format_string;
