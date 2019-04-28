@@ -1171,7 +1171,7 @@ const generateTaskId = task => {
 
 const getById = (id, list) => tasks.find(item => item.id === id);
 
-const getPreparedSVG = element => {
+const buildSVG = element => {
   let svg_element, wrapper_element;
 
   // CSS Selector is passed
@@ -1207,6 +1207,61 @@ const getPreparedSVG = element => {
   return svg;
 };
 
+const buildPopupWrapper = document => {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('popup-wrapper');
+  return wrapper;
+};
+
+const buildContainerWrapper = document => {
+  const container = document.createElement('div');
+  container.classList.add('gantt-container');
+  return container;
+};
+
+const buildWrappers = (element, document) => {
+  const containerWrapper = buildContainerWrapper(document);
+
+  const svg = buildSVG(element);
+
+  const parentElement = svg.parentElement;
+  parentElement.appendChild(containerWrapper);
+  containerWrapper.appendChild(svg);
+
+  const popupWrapper = buildPopupWrapper(document);
+  containerWrapper.appendChild(popupWrapper);
+
+  return {
+    containerWrapper,
+    popupWrapper,
+    svg
+  };
+};
+
+const DEFAULT_OPTIONS = {
+  header_height: 50,
+  column_width: 30,
+  step: 24,
+  view_modes: [
+    SCALE_QUARTER_DAY,
+    SCALE_HALF_DAY,
+    SCALE_DAY,
+    SCALE_WEEK,
+    SCALE_MONTH,
+    SCALE_YEAR
+  ],
+  bar_height: 20,
+  bar_corner_radius: 3,
+  arrow_curve: 5,
+  padding: 18,
+  view_mode: SCALE_DAY,
+  date_format: 'YYYY-MM-DD',
+  popup_trigger: 'click',
+  custom_popup_html: null,
+  language: 'en',
+  with_padding: true
+};
+
 class Gantt {
   constructor(wrapper, tasks, options) {
     this.setup_wrapper(wrapper);
@@ -1218,46 +1273,17 @@ class Gantt {
   }
 
   setup_wrapper(element) {
-    this.$svg = getPreparedSVG(element);
-    // wrapper element
-    this.$container = document.createElement('div');
-    this.$container.classList.add('gantt-container');
-
-    const parent_element = this.$svg.parentElement;
-    parent_element.appendChild(this.$container);
-    this.$container.appendChild(this.$svg);
-
-    // popup wrapper
-    this.popup_wrapper = document.createElement('div');
-    this.popup_wrapper.classList.add('popup-wrapper');
-    this.$container.appendChild(this.popup_wrapper);
+    const { svg, containerWrapper, popupWrapper } = buildWrappers(
+      element,
+      document
+    );
+    this.$svg = svg;
+    this.$container = containerWrapper;
+    this.popup_wrapper = popupWrapper;
   }
 
   setup_options(options) {
-    const default_options = {
-      header_height: 50,
-      column_width: 30,
-      step: 24,
-      view_modes: [
-        SCALE_QUARTER_DAY,
-        SCALE_HALF_DAY,
-        SCALE_DAY,
-        SCALE_WEEK,
-        SCALE_MONTH,
-        SCALE_YEAR
-      ],
-      bar_height: 20,
-      bar_corner_radius: 3,
-      arrow_curve: 5,
-      padding: 18,
-      view_mode: SCALE_DAY,
-      date_format: 'YYYY-MM-DD',
-      popup_trigger: 'click',
-      custom_popup_html: null,
-      language: 'en',
-      with_padding: true
-    };
-    this.options = Object.assign({}, default_options, options);
+    this.options = Object.assign({}, DEFAULT_OPTIONS, options);
   }
 
   setup_tasks(tasks) {

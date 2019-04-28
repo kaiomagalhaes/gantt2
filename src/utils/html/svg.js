@@ -1,6 +1,6 @@
-import { isString } from './string';
+import { isString } from '../string';
 
-export const getPreparedSVG = element => {
+export const buildSVG = element => {
   let svg_element, wrapper_element;
 
   // CSS Selector is passed

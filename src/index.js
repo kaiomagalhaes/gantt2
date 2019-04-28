@@ -14,7 +14,6 @@ import {
 } from './utils/tasks';
 import { getById } from './utils/list';
 import { isViewMode } from './utils/viewMode';
-import { getPreparedSVG } from './utils/svg';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -23,6 +22,7 @@ import {
   SCALE_WEEK,
   SCALE_YEAR
 } from './utils/enums/view_modes';
+import { buildWrappers } from './utils/html/wrappers';
 import {
   YEAR,
   MONTH,
@@ -35,6 +35,30 @@ import {
 
 import './gantt.scss';
 
+const DEFAULT_OPTIONS = {
+  header_height: 50,
+  column_width: 30,
+  step: 24,
+  view_modes: [
+    SCALE_QUARTER_DAY,
+    SCALE_HALF_DAY,
+    SCALE_DAY,
+    SCALE_WEEK,
+    SCALE_MONTH,
+    SCALE_YEAR
+  ],
+  bar_height: 20,
+  bar_corner_radius: 3,
+  arrow_curve: 5,
+  padding: 18,
+  view_mode: SCALE_DAY,
+  date_format: 'YYYY-MM-DD',
+  popup_trigger: 'click',
+  custom_popup_html: null,
+  language: 'en',
+  with_padding: true
+};
+
 export default class Gantt {
   constructor(wrapper, tasks, options) {
     this.setup_wrapper(wrapper);
@@ -46,46 +70,17 @@ export default class Gantt {
   }
 
   setup_wrapper(element) {
-    this.$svg = getPreparedSVG(element);
-    // wrapper element
-    this.$container = document.createElement('div');
-    this.$container.classList.add('gantt-container');
-
-    const parent_element = this.$svg.parentElement;
-    parent_element.appendChild(this.$container);
-    this.$container.appendChild(this.$svg);
-
-    // popup wrapper
-    this.popup_wrapper = document.createElement('div');
-    this.popup_wrapper.classList.add('popup-wrapper');
-    this.$container.appendChild(this.popup_wrapper);
+    const { svg, containerWrapper, popupWrapper } = buildWrappers(
+      element,
+      document
+    );
+    this.$svg = svg;
+    this.$container = containerWrapper;
+    this.popup_wrapper = popupWrapper;
   }
 
   setup_options(options) {
-    const default_options = {
-      header_height: 50,
-      column_width: 30,
-      step: 24,
-      view_modes: [
-        SCALE_QUARTER_DAY,
-        SCALE_HALF_DAY,
-        SCALE_DAY,
-        SCALE_WEEK,
-        SCALE_MONTH,
-        SCALE_YEAR
-      ],
-      bar_height: 20,
-      bar_corner_radius: 3,
-      arrow_curve: 5,
-      padding: 18,
-      view_mode: SCALE_DAY,
-      date_format: 'YYYY-MM-DD',
-      popup_trigger: 'click',
-      custom_popup_html: null,
-      language: 'en',
-      with_padding: true
-    };
-    this.options = Object.assign({}, default_options, options);
+    this.options = Object.assign({}, DEFAULT_OPTIONS, options);
   }
 
   setup_tasks(tasks) {
