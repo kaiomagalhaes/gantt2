@@ -507,7 +507,8 @@ export default class Gantt {
     };
 
     return {
-      upper_text: date_text[`${this.options.view_mode}_upper`],
+      //@TODO: Fix header
+      // upper_text: date_text[`${this.options.view_mode}_upper`],
       lower_text: date_text[`${this.options.view_mode}_lower`],
       upper_x: base_pos.x + x_pos[`${this.options.view_mode}_upper`],
       upper_y: base_pos.upper_y,
