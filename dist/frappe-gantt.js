@@ -277,7 +277,7 @@ function $(expr, con) {
   return isString(expr) ? (con || document).querySelector(expr) : expr || null;
 }
 
-function createSVG(tag, attrs) {
+function createSVG$1(tag, attrs) {
   const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (let attr in attrs) {
     if (attr === 'append_to') {
@@ -325,7 +325,7 @@ function getAnimationElement(
     return svgElement;
   }
 
-  const animateElement = createSVG('animate', {
+  const animateElement = createSVG$1('animate', {
     attributeName: attr,
     from,
     to,
@@ -438,15 +438,15 @@ class Bar {
       this.gantt.options.column_width *
         this.duration *
         (this.task.progress / 100) || 0;
-    this.group = createSVG('g', {
+    this.group = createSVG$1('g', {
       class: 'bar-wrapper ' + (this.task.custom_class || ''),
       'data-id': this.task.id
     });
-    this.bar_group = createSVG('g', {
+    this.bar_group = createSVG$1('g', {
       class: 'bar-group',
       append_to: this.group
     });
-    this.handle_group = createSVG('g', {
+    this.handle_group = createSVG$1('g', {
       class: 'handle-group',
       append_to: this.group
     });
@@ -478,7 +478,7 @@ class Bar {
   }
 
   draw_bar() {
-    this.$bar = createSVG('rect', {
+    this.$bar = createSVG$1('rect', {
       x: this.x,
       y: this.y,
       width: this.width,
@@ -498,7 +498,7 @@ class Bar {
 
   draw_progress_bar() {
     if (this.invalid) return;
-    this.$bar_progress = createSVG('rect', {
+    this.$bar_progress = createSVG$1('rect', {
       x: this.x,
       y: this.y,
       width: this.progress_width,
@@ -513,7 +513,7 @@ class Bar {
   }
 
   draw_label() {
-    createSVG('text', {
+    createSVG$1('text', {
       x: this.x + this.width / 2,
       y: this.y + this.height / 2,
       innerHTML: this.task.name,
@@ -530,7 +530,7 @@ class Bar {
     const bar = this.$bar;
     const handle_width = 8;
 
-    createSVG('rect', {
+    createSVG$1('rect', {
       x: bar.getX() + bar.getWidth() - 9,
       y: bar.getY() + 1,
       width: handle_width,
@@ -541,7 +541,7 @@ class Bar {
       append_to: this.handle_group
     });
 
-    createSVG('rect', {
+    createSVG$1('rect', {
       x: bar.getX() + 1,
       y: bar.getY() + 1,
       width: handle_width,
@@ -553,7 +553,7 @@ class Bar {
     });
 
     if (this.task.progress && this.task.progress < 100) {
-      this.$handle_progress = createSVG('polygon', {
+      this.$handle_progress = createSVG$1('polygon', {
         points: this.get_progress_polygon_points().join(','),
         class: 'handle progress',
         append_to: this.handle_group
@@ -882,7 +882,7 @@ class Arrow {
   }
 
   draw() {
-    this.element = createSVG('path', {
+    this.element = createSVG$1('path', {
       d: this.path,
       'data-from': this.from_task.task.id,
       'data-to': this.to_task.task.id
@@ -1139,11 +1139,73 @@ const getTasksDependencies = tasks => {
   return tasks;
 };
 
+const getTaskDependencies = (taskId, dependencies) => {
+  let out = [];
+  let to_process = [task_id];
+  while (to_process.length) {
+    const deps = to_process.reduce((acc, curr) => {
+      acc = acc.concat(dependencies[curr]);
+      return acc;
+    }, []);
+
+    out = out.concat(deps);
+    to_process = deps.filter(d => !to_process.includes(d));
+  }
+
+  return out.filter(Boolean);
+};
+
+const getOldestStartingDate = tasks => {
+  return tasks
+    .map(task => task._start)
+    .reduce(
+      (prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date)
+    );
+};
+
 const generateTaskId = task => {
-  return `${task.name}_${Math.random().toString(36).slice(2, 12)}`;
+  return `${task.name}_${Math.random()
+    .toString(36)
+    .slice(2, 12)}`;
 };
 
 const getById = (id, list) => tasks.find(item => item.id === id);
+
+const getPreparedSVG = element => {
+  let svg_element, wrapper_element;
+
+  // CSS Selector is passed
+  if (isString(element)) {
+    element = document.querySelector(element);
+  }
+
+  // get the SVGElement
+  if (element instanceof HTMLElement) {
+    wrapper_element = element;
+    svg_element = element.querySelector('svg');
+  } else if (element instanceof SVGElement) {
+    svg_element = element;
+  } else {
+    throw new TypeError(
+      'Frappé Gantt only supports usage of a string CSS selector,' +
+      " HTML DOM element or SVG DOM element for the 'element' parameter"
+    );
+  }
+
+  let svg = null;
+  // svg element
+  if (!svg_element) {
+    // create it
+    svg = createSVG('svg', {
+      append_to: wrapper_element,
+      class: 'gantt'
+    });
+  } else {
+    svg = svg_element;
+    svg.classList.add('gantt');
+  }
+  return svg;
+};
 
 class Gantt {
   constructor(wrapper, tasks, options) {
@@ -1156,38 +1218,7 @@ class Gantt {
   }
 
   setup_wrapper(element) {
-    let svg_element, wrapper_element;
-
-    // CSS Selector is passed
-    if (isString(element)) {
-      element = document.querySelector(element);
-    }
-
-    // get the SVGElement
-    if (element instanceof HTMLElement) {
-      wrapper_element = element;
-      svg_element = element.querySelector('svg');
-    } else if (element instanceof SVGElement) {
-      svg_element = element;
-    } else {
-      throw new TypeError(
-        'Frappé Gantt only supports usage of a string CSS selector,' +
-          " HTML DOM element or SVG DOM element for the 'element' parameter"
-      );
-    }
-
-    // svg element
-    if (!svg_element) {
-      // create it
-      this.$svg = createSVG('svg', {
-        append_to: wrapper_element,
-        class: 'gantt'
-      });
-    } else {
-      this.$svg = svg_element;
-      this.$svg.classList.add('gantt');
-    }
-
+    this.$svg = getPreparedSVG(element);
     // wrapper element
     this.$container = document.createElement('div');
     this.$container.classList.add('gantt-container');
@@ -1304,7 +1335,7 @@ class Gantt {
     const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
     // make group layers
     for (let layer of layers) {
-      this.layers[layer] = createSVG('g', {
+      this.layers[layer] = createSVG$1('g', {
         class: layer,
         append_to: this.$svg
       });
@@ -1326,7 +1357,7 @@ class Gantt {
       this.options.padding +
       (this.options.bar_height + this.options.padding) * this.tasks.length;
 
-    createSVG('rect', {
+    createSVG$1('rect', {
       x: 0,
       y: 0,
       width: grid_width,
@@ -1342,8 +1373,8 @@ class Gantt {
   }
 
   make_grid_rows() {
-    const rows_layer = createSVG('g', { append_to: this.layers.grid });
-    const lines_layer = createSVG('g', { append_to: this.layers.grid });
+    const rows_layer = createSVG$1('g', { append_to: this.layers.grid });
+    const lines_layer = createSVG$1('g', { append_to: this.layers.grid });
 
     const row_width = this.dates.length * this.options.column_width;
     const row_height = this.options.bar_height + this.options.padding;
@@ -1351,7 +1382,7 @@ class Gantt {
     let row_y = this.options.header_height + this.options.padding / 2;
 
     for (let task of this.tasks) {
-      createSVG('rect', {
+      createSVG$1('rect', {
         x: 0,
         y: row_y,
         width: row_width,
@@ -1360,7 +1391,7 @@ class Gantt {
         append_to: rows_layer
       });
 
-      createSVG('line', {
+      createSVG$1('line', {
         x1: 0,
         y1: row_y + row_height,
         x2: row_width,
@@ -1376,7 +1407,7 @@ class Gantt {
   make_grid_header() {
     const header_width = this.dates.length * this.options.column_width;
     const header_height = this.options.header_height + 10;
-    createSVG('rect', {
+    createSVG$1('rect', {
       x: 0,
       y: 0,
       width: header_width,
@@ -1411,7 +1442,7 @@ class Gantt {
         tick_class += ' thick';
       }
 
-      createSVG('path', {
+      createSVG$1('path', {
         d: `M ${tick_x} ${tick_y} v ${tick_height}`,
         class: tick_class,
         append_to: this.layers.grid
@@ -1441,7 +1472,7 @@ class Gantt {
         this.options.header_height +
         this.options.padding / 2;
 
-      createSVG('rect', {
+      createSVG$1('rect', {
         x,
         y,
         width,
@@ -1454,7 +1485,7 @@ class Gantt {
 
   make_dates() {
     for (let date of this.get_dates_to_draw()) {
-      createSVG('text', {
+      createSVG$1('text', {
         x: date.lower_x,
         y: date.lower_y,
         innerHTML: date.lower_text,
@@ -1463,7 +1494,7 @@ class Gantt {
       });
 
       if (date.upper_text) {
-        const $upper_text = createSVG('text', {
+        const $upper_text = createSVG$1('text', {
           x: date.upper_x,
           y: date.upper_y,
           innerHTML: date.upper_text,
@@ -1580,7 +1611,7 @@ class Gantt {
       let arrows = [];
       arrows = task.dependencies
         .map(task_id => {
-          const dependency = this.get_task(task_id);
+          const dependency = getById(task_id, this.tasks);
           if (!dependency) return;
           const arrow = new Arrow(
             this,
@@ -1621,7 +1652,7 @@ class Gantt {
     if (!parent_element) return;
 
     const hours_before_first_task = date_utils.diff(
-      this.get_oldest_starting_date(),
+      getOldestStartingDate(this.tasks),
       this.gantt_start,
       HOUR
     );
@@ -1680,7 +1711,7 @@ class Gantt {
         parent_bar_id,
         ...this.get_all_dependent_tasks(parent_bar_id)
       ];
-      bars = ids.map(id => this.get_bar(id));
+      bars = ids.map(id => this.getById(id, this.bars));
 
       this.bar_being_dragged = parent_bar_id;
 
@@ -1763,7 +1794,7 @@ class Gantt {
 
       const $bar_wrapper = $.closest('.bar-wrapper', handle);
       const id = $bar_wrapper.getAttribute('data-id');
-      bar = this.get_bar(id);
+      bar = this.get_bar(id, this.bars);
 
       $bar_progress = bar.$bar_progress;
       $bar = bar.$bar;
@@ -1800,20 +1831,8 @@ class Gantt {
     });
   }
 
-  get_all_dependent_tasks(task_id) {
-    let out = [];
-    let to_process = [task_id];
-    while (to_process.length) {
-      const deps = to_process.reduce((acc, curr) => {
-        acc = acc.concat(this.dependency_map[curr]);
-        return acc;
-      }, []);
-
-      out = out.concat(deps);
-      to_process = deps.filter(d => !to_process.includes(d));
-    }
-
-    return out.filter(Boolean);
+  get_all_dependent_tasks(taskId) {
+    return getTaskDependencies(taskId, this.dependency_map);
   }
 
   get_snap_position(dx) {
@@ -1854,23 +1873,8 @@ class Gantt {
   }
 
   view_is(modes) {
-    if (isString(modes)) {
-      return this.options.view_mode === modes;
-    }
-
-    if (Array.isArray(modes)) {
-      return modes.some(mode => this.options.view_mode === mode);
-    }
-
-    return false;
-  }
-
-  get_task(id) {
-    return getById(id, this.tasks);
-  }
-
-  get_bar(id) {
-    return getById(id, this.bars);
+    const { view_mode } = this.options;
+    return isViewMode(modes, view_mode);
   }
 
   show_popup(options) {
@@ -1891,20 +1895,6 @@ class Gantt {
     if (this.options['on_' + event]) {
       this.options['on_' + event].apply(null, args);
     }
-  }
-
-  /**
-   * Gets the oldest starting date from the list of tasks
-   *
-   * @returns Date
-   * @memberof Gantt
-   */
-  get_oldest_starting_date() {
-    return this.tasks
-      .map(task => task._start)
-      .reduce(
-        (prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date)
-      );
   }
 
   /**

@@ -9,11 +9,12 @@ import { getDateIntervalRange } from './utils/dates/interval';
 import {
   getOldestStartingDate,
   getPreparedTasks,
-  getTasksDependencies
-  getTaskDependencies,
+  getTasksDependencies,
+  getTaskDependencies
 } from './utils/tasks';
 import { getById } from './utils/list';
 import { isViewMode } from './utils/viewMode';
+import { getPreparedSVG } from './utils/svg';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -45,38 +46,7 @@ export default class Gantt {
   }
 
   setup_wrapper(element) {
-    let svg_element, wrapper_element;
-
-    // CSS Selector is passed
-    if (isString(element)) {
-      element = document.querySelector(element);
-    }
-
-    // get the SVGElement
-    if (element instanceof HTMLElement) {
-      wrapper_element = element;
-      svg_element = element.querySelector('svg');
-    } else if (element instanceof SVGElement) {
-      svg_element = element;
-    } else {
-      throw new TypeError(
-        'Frappé Gantt only supports usage of a string CSS selector,' +
-          " HTML DOM element or SVG DOM element for the 'element' parameter"
-      );
-    }
-
-    // svg element
-    if (!svg_element) {
-      // create it
-      this.$svg = createSVG('svg', {
-        append_to: wrapper_element,
-        class: 'gantt'
-      });
-    } else {
-      this.$svg = svg_element;
-      this.$svg.classList.add('gantt');
-    }
-
+    this.$svg = getPreparedSVG(element);
     // wrapper element
     this.$container = document.createElement('div');
     this.$container.classList.add('gantt-container');
