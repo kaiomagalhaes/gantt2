@@ -104,7 +104,8 @@ export default class Gantt {
       date_format: 'YYYY-MM-DD',
       popup_trigger: 'click',
       custom_popup_html: null,
-      language: 'en'
+      language: 'en',
+      with_padding: true
     };
     this.options = Object.assign({}, default_options, options);
   }
@@ -222,15 +223,13 @@ export default class Gantt {
   }
 
   setup_dates() {
-    const withPadding = false;
-    const { view_mode, step } = this.options;
-    // @TODO: add the option to decide if it should add padding
-    const period = getPeriod(this.tasks, withPadding, view_mode);
+    const { with_padding, view_mode, step } = this.options;
+    const period = getPeriod(this.tasks, with_padding, view_mode);
     const { start, end } = period;
 
     this.gantt_start = start;
     this.gantt_end = end;
-    this.dates = getDateIntervalRange(period, view_mode, withPadding, step);
+    this.dates = getDateIntervalRange(period, view_mode, with_padding, step);
   }
 
   bind_events() {
