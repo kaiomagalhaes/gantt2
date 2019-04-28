@@ -6,7 +6,7 @@ import Arrow from './arrow';
 import Popup from './popup';
 import { getPeriod } from './utils/dates/period';
 import { getDateIntervalRange } from './utils/dates/interval';
-import { getPreparedTasks, getTasksDependencies } from './utils/tasks';
+import { getOldestStartingDate, getPreparedTasks, getTasksDependencies } from './utils/tasks';
 import { getById } from './utils/list';
 import {
   SCALE_DAY,
@@ -504,7 +504,7 @@ export default class Gantt {
     if (!parent_element) return;
 
     const hours_before_first_task = date_utils.diff(
-      this.get_oldest_starting_date(),
+      getOldestStartingDate(this.tasks),
       this.gantt_start,
       HOUR
     );
@@ -777,20 +777,6 @@ export default class Gantt {
   }
 
   /**
-   * Gets the oldest starting date from the list of tasks
-   *
-   * @returns Date
-   * @memberof Gantt
-   */
-  get_oldest_starting_date() {
-    return this.tasks
-      .map(task => task._start)
-      .reduce(
-        (prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date)
-      );
-  }
-
-  /**
    * Clear all elements from the parent svg element
    *
    * @memberof Gantt
@@ -798,14 +784,4 @@ export default class Gantt {
   clear() {
     this.$svg.innerHTML = '';
   }
-}
-
-function generate_id(task) {
-  return (
-    task.name +
-    '_' +
-    Math.random()
-      .toString(36)
-      .slice(2, 12)
-  );
 }
