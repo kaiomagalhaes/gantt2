@@ -1119,7 +1119,7 @@ const getPreparedTasks = tasks => {
 
     // uids
     if (!task.id) {
-      task.id = generate_id(task);
+      task.id = generateTaskId(task);
     }
 
     return task;
@@ -1137,6 +1137,10 @@ const getTasksDependencies = tasks => {
     }
   }
   return tasks;
+};
+
+const generateTaskId = task => {
+  return `${task.name}_${Math.random().toString(36).slice(2, 12)}`;
 };
 
 const getById = (id, list) => tasks.find(item => item.id === id);
