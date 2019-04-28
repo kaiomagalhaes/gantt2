@@ -5,6 +5,7 @@ import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
 import { getPeriod } from './utils/dates/period';
+import { getDateIntervalRange } from './utils/dates/interval';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -221,37 +222,15 @@ export default class Gantt {
   }
 
   setup_dates() {
-    this.setup_gantt_dates();
-    this.setup_date_values();
-  }
-
-  setup_gantt_dates() {
-    const { view_mode } = this.options;
+    const withPadding = false;
+    const { view_mode, step } = this.options;
     // @TODO: add the option to decide if it should add padding
-    const { start, end } = getPeriod(this.tasks, true, view_mode);
+    const period = getPeriod(this.tasks, withPadding, view_mode);
+    const { start, end } = period;
 
     this.gantt_start = start;
     this.gantt_end = end;
-  }
-
-  setup_date_values() {
-    this.dates = [];
-    let cur_date = null;
-
-    while (cur_date === null || cur_date < this.gantt_end) {
-      if (!cur_date) {
-        cur_date = date_utils.clone(this.gantt_start);
-      } else {
-        if (this.view_is(SCALE_YEAR)) {
-          cur_date = date_utils.add(cur_date, 1, YEAR);
-        } else if (this.view_is(SCALE_MONTH)) {
-          cur_date = date_utils.add(cur_date, 1, MONTH);
-        } else {
-          cur_date = date_utils.add(cur_date, this.options.step, HOUR);
-        }
-      }
-      this.dates.push(cur_date);
-    }
+    this.dates = getDateIntervalRange(period, view_mode, withPadding, step);
   }
 
   bind_events() {

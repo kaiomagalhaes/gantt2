@@ -58,8 +58,9 @@ const getSimplePeriod = tasks => {
     }
   }
 
-  start = date_utils.start_of(start, DAY);
-  end = date_utils.start_of(end, DAY);
+  //@TODO: discover why this is necessary
+  //start = date_utils.start_of(start, DAY);
+  // end = date_utils.start_of(end, DAY);
 
   return {
     start,

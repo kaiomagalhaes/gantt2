@@ -1022,8 +1022,9 @@ const getSimplePeriod = tasks => {
     }
   }
 
-  start = date_utils.start_of(start, DAY);
-  end = date_utils.start_of(end, DAY);
+  //@TODO: discover why this is necessary
+  //start = date_utils.start_of(start, DAY);
+  // end = date_utils.start_of(end, DAY);
 
   return {
     start,
@@ -1039,6 +1040,28 @@ const getPeriod = (tasks, withPadding, viewMode) => {
   }
 
   return period;
+};
+
+const getDateIntervalRange = (period, viewScale, withPadding, step) => {
+  const { start, end } = period;
+  let currentDate = date_utils.clone(start);
+  const dates = [currentDate];
+
+  while (currentDate < end) {
+    if (isViewMode(viewScale, SCALE_YEAR)) {
+      currentDate = date_utils.add(currentDate, 1, YEAR);
+    } else if (isViewMode(viewScale, SCALE_MONTH)) {
+      currentDate = date_utils.add(currentDate, 1, MONTH);
+    } else {
+      currentDate = date_utils.add(currentDate, step, HOUR);
+    }
+
+    if (withPadding || currentDate < end) {
+      dates.push(currentDate);
+    }
+  }
+
+  return dates;
 };
 
 class Gantt {
@@ -1237,37 +1260,15 @@ class Gantt {
   }
 
   setup_dates() {
-    this.setup_gantt_dates();
-    this.setup_date_values();
-  }
-
-  setup_gantt_dates() {
-    const { view_mode } = this.options;
+    const withPadding = false;
+    const { view_mode, step } = this.options;
     // @TODO: add the option to decide if it should add padding
-    const { start, end } = getPeriod(this.tasks, true, view_mode);
+    const period = getPeriod(this.tasks, withPadding, view_mode);
+    const { start, end } = period;
 
     this.gantt_start = start;
     this.gantt_end = end;
-  }
-
-  setup_date_values() {
-    this.dates = [];
-    let cur_date = null;
-
-    while (cur_date === null || cur_date < this.gantt_end) {
-      if (!cur_date) {
-        cur_date = date_utils.clone(this.gantt_start);
-      } else {
-        if (this.view_is(SCALE_YEAR)) {
-          cur_date = date_utils.add(cur_date, 1, YEAR);
-        } else if (this.view_is(SCALE_MONTH)) {
-          cur_date = date_utils.add(cur_date, 1, MONTH);
-        } else {
-          cur_date = date_utils.add(cur_date, this.options.step, HOUR);
-        }
-      }
-      this.dates.push(cur_date);
-    }
+    this.dates = getDateIntervalRange(period, view_mode, withPadding, step);
   }
 
   bind_events() {
