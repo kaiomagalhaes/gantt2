@@ -77,6 +77,22 @@ export const getTasksDependencies = tasks => {
   return tasks;
 };
 
+export const getTaskDependencies = (taskId, dependencies) => {
+  let out = [];
+  let to_process = [task_id];
+  while (to_process.length) {
+    const deps = to_process.reduce((acc, curr) => {
+      acc = acc.concat(dependencies[curr]);
+      return acc;
+    }, []);
+
+    out = out.concat(deps);
+    to_process = deps.filter(d => !to_process.includes(d));
+  }
+
+  return out.filter(Boolean);
+};
+
 export const getOldestStartingDate = tasks => {
   return tasks
     .map(task => task._start)
@@ -86,5 +102,7 @@ export const getOldestStartingDate = tasks => {
 };
 
 const generateTaskId = task => {
-  return `${task.name}_${Math.random().toString(36).slice(2, 12)}`;
+  return `${task.name}_${Math.random()
+    .toString(36)
+    .slice(2, 12)}`;
 };

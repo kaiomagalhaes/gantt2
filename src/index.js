@@ -6,8 +6,14 @@ import Arrow from './arrow';
 import Popup from './popup';
 import { getPeriod } from './utils/dates/period';
 import { getDateIntervalRange } from './utils/dates/interval';
-import { getOldestStartingDate, getPreparedTasks, getTasksDependencies } from './utils/tasks';
+import {
+  getOldestStartingDate,
+  getPreparedTasks,
+  getTasksDependencies
+  getTaskDependencies,
+} from './utils/tasks';
 import { getById } from './utils/list';
+import { isViewMode } from './utils/viewMode';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -463,7 +469,7 @@ export default class Gantt {
       let arrows = [];
       arrows = task.dependencies
         .map(task_id => {
-          const dependency = this.get_task(task_id);
+          const dependency = getById(task_id, this.tasks);
           if (!dependency) return;
           const arrow = new Arrow(
             this,
@@ -563,7 +569,7 @@ export default class Gantt {
         parent_bar_id,
         ...this.get_all_dependent_tasks(parent_bar_id)
       ];
-      bars = ids.map(id => this.get_bar(id));
+      bars = ids.map(id => this.getById(id, this.bars));
 
       this.bar_being_dragged = parent_bar_id;
 
@@ -646,7 +652,7 @@ export default class Gantt {
 
       const $bar_wrapper = $.closest('.bar-wrapper', handle);
       const id = $bar_wrapper.getAttribute('data-id');
-      bar = this.get_bar(id);
+      bar = this.get_bar(id, this.bars);
 
       $bar_progress = bar.$bar_progress;
       $bar = bar.$bar;
@@ -683,20 +689,8 @@ export default class Gantt {
     });
   }
 
-  get_all_dependent_tasks(task_id) {
-    let out = [];
-    let to_process = [task_id];
-    while (to_process.length) {
-      const deps = to_process.reduce((acc, curr) => {
-        acc = acc.concat(this.dependency_map[curr]);
-        return acc;
-      }, []);
-
-      out = out.concat(deps);
-      to_process = deps.filter(d => !to_process.includes(d));
-    }
-
-    return out.filter(Boolean);
+  get_all_dependent_tasks(taskId) {
+    return getTaskDependencies(taskId, this.dependency_map);
   }
 
   get_snap_position(dx) {
@@ -737,23 +731,8 @@ export default class Gantt {
   }
 
   view_is(modes) {
-    if (isString(modes)) {
-      return this.options.view_mode === modes;
-    }
-
-    if (Array.isArray(modes)) {
-      return modes.some(mode => this.options.view_mode === mode);
-    }
-
-    return false;
-  }
-
-  get_task(id) {
-    return getById(id, this.tasks);
-  }
-
-  get_bar(id) {
-    return getById(id, this.bars);
+    const { view_mode } = this.options;
+    return isViewMode(modes, view_mode);
   }
 
   show_popup(options) {
