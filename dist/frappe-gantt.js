@@ -1139,6 +1139,8 @@ const getTasksDependencies = tasks => {
   return tasks;
 };
 
+const getById = (id, list) => tasks.find(item => item.id === id);
+
 class Gantt {
   constructor(wrapper, tasks, options) {
     this.setup_wrapper(wrapper);
@@ -1860,15 +1862,11 @@ class Gantt {
   }
 
   get_task(id) {
-    return this.tasks.find(task => {
-      return task.id === id;
-    });
+    return getById(id, this.tasks);
   }
 
   get_bar(id) {
-    return this.bars.find(bar => {
-      return bar.task.id === id;
-    });
+    return getById(id, this.bars);
   }
 
   show_popup(options) {

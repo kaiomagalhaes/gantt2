@@ -7,6 +7,7 @@ import Popup from './popup';
 import { getPeriod } from './utils/dates/period';
 import { getDateIntervalRange } from './utils/dates/interval';
 import { getPreparedTasks, getTasksDependencies } from './utils/tasks';
+import { getById } from './utils/list';
 import {
   SCALE_DAY,
   SCALE_HALF_DAY,
@@ -748,15 +749,11 @@ export default class Gantt {
   }
 
   get_task(id) {
-    return this.tasks.find(task => {
-      return task.id === id;
-    });
+    return getById(id, this.tasks);
   }
 
   get_bar(id) {
-    return this.bars.find(bar => {
-      return bar.task.id === id;
-    });
+    return getById(id, this.bars);
   }
 
   show_popup(options) {
