@@ -23,6 +23,7 @@ import {
   SCALE_YEAR
 } from './utils/enums/view_modes';
 import { buildWrappers } from './utils/html/wrappers';
+import { buildSVGLayers } from './utils/html/svg';
 import {
   YEAR,
   MONTH,
@@ -143,7 +144,7 @@ export default class Gantt {
 
   render() {
     this.clear();
-    this.setup_layers();
+    this.layers = buildSVGLayers(this.$svg);
     this.make_grid();
     this.make_dates();
     this.make_bars();
@@ -151,18 +152,6 @@ export default class Gantt {
     this.map_arrows_on_bars();
     this.set_width();
     this.set_scroll_position();
-  }
-
-  setup_layers() {
-    this.layers = {};
-    const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
-    // make group layers
-    for (let layer of layers) {
-      this.layers[layer] = createSVG('g', {
-        class: layer,
-        append_to: this.$svg
-      });
-    }
   }
 
   make_grid() {

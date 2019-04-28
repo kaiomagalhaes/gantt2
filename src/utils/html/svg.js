@@ -1,4 +1,5 @@
 import { isString } from '../string';
+import { createSVG } from '../../svg_utils';
 
 export const buildSVG = element => {
   let svg_element, wrapper_element;
@@ -34,4 +35,17 @@ export const buildSVG = element => {
     svg.classList.add('gantt');
   }
   return svg;
+};
+
+export const buildSVGLayers = svg => {
+  const SVGLayers = {};
+  const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+  // make group layers
+  for (let layer of layers) {
+    SVGLayers[layer] = createSVG('g', {
+      class: layer,
+      append_to: svg
+    });
+  }
+  return SVGLayers;
 };
