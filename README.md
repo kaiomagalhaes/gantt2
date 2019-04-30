@@ -1,9 +1,10 @@
+This library was forked from [frappe/gantt](https://github.com/frappe/gantt/)
+
 <div align="center">
-    <img src="https://github.com/frappe/design/blob/master/logos/gantt-logo.svg" height="128">
     <h2>Frappe Gantt</h2>
     <p align="center">
-        <p>A simple, interactive, modern gantt chart library for the web</p>
-        <a href="https://frappe.github.io/gantt">
+        <p>A simple, interactive, modern gantt chart library for the web, based on <a href='https://github.com/frappe/gantt/'>frappe/gantt</a></p>
+        <a href="https://codelitt.github.io/gantt2">
             <b>View the demo »</b>
         </a>
     </p>
@@ -17,14 +18,14 @@
 
 ### Install
 ```
-npm install frappe-gantt
+npm install codelitt-gantt2
 ```
 
 ### Usage
 Include it in your HTML:
 ```
-<script src="frappe-gantt.min.js"></script>
-<link rel="stylesheet" href="frappe-gantt.css">
+<script src="codelitt-gantt2.min.js"></script>
+<link rel="stylesheet" href="codelitt-gantt2.css">
 ```
 
 And start hacking:
@@ -71,4 +72,4 @@ If you want to contribute:
 License: MIT
 
 ------------------
-Project maintained by [frappe](https://github.com/frappe)
+Project maintained by [Codelitt](https://github.com/codelitt)

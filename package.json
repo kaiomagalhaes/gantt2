@@ -1,6 +1,6 @@
 {
-  "name": "frappe-gantt",
-  "version": "0.3.0",
+  "name": "codelitt-gantt2",
+  "version": "0.0.1",
   "description": "A simple, modern, interactive gantt library for the web",
   "main": "src/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frappe/gantt.git"
+    "url": "https://github.com/codelitt/gantt2.git"
   },
   "keywords": [
     "gantt",
@@ -26,9 +26,9 @@
   "author": "Faris Ansari",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/frappe/gantt/issues"
+    "url": "https://github.com/codelitt/gantt2/issues"
   },
-  "homepage": "https://github.com/frappe/gantt",
+  "homepage": "https://github.com/codelitt/gantt2",
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
     "deepmerge": "^2.0.1",

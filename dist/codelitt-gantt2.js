@@ -1044,6 +1044,8 @@ const getPeriod = (tasks, withPadding, viewMode) => {
   return period;
 };
 
+//@TODO: improve the step system to not be hourly based, and not be used only
+//for the our view mode
 const getDateIntervalRange = (period, viewScale, withPadding, step) => {
   const { start, end } = period;
   let currentDate = date_utils.clone(start);
