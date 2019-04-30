@@ -70,7 +70,8 @@ export default class Bar {
     this.draw_bar();
     this.draw_progress_bar();
     this.draw_label();
-    this.draw_resize_handles();
+    //@TODO: enable the resize handles once we add the option for the user to disable them
+    // this.draw_resize_handles();
   }
 
   draw_bar() {

@@ -79,7 +79,7 @@ export const getTasksDependencies = tasks => {
 
 export const getTaskDependencies = (taskId, dependencies) => {
   let out = [];
-  let to_process = [task_id];
+  let to_process = [taskId];
   while (to_process.length) {
     const deps = to_process.reduce((acc, curr) => {
       acc = acc.concat(dependencies[curr]);

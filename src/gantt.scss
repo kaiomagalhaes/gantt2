@@ -88,13 +88,15 @@ $handle-color: #ddd !default;
 	}
 
 	.bar-wrapper {
-		cursor: pointer;
+  //@TODO: add the pointer effect on the bar once we fix the tooltip/resize features
+  //cursor: pointer;
 		outline: none;
 
 		&:hover {
-			.bar {
-				fill: darken($bar-color, 5);
-			}
+  //@TODO: add the hover effect on the bar once we fix the tooltip/resize features
+  // .bar {
+  //   fill: darken($bar-color, 5);
+  //  }
 
 			.bar-progress {
 				fill: darken($blue, 5);

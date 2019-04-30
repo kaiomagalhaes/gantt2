@@ -67,7 +67,9 @@ export default class Gantt {
     this.setup_tasks(tasks);
     // initialize with default view mode
     this.change_view_mode();
-    this.bind_events();
+
+    //@TODO: enable once we fix the resizing/popup
+    // this.bind_events();
   }
 
   setup_wrapper(element) {
@@ -523,7 +525,7 @@ export default class Gantt {
         parent_bar_id,
         ...this.get_all_dependent_tasks(parent_bar_id)
       ];
-      bars = ids.map(id => this.getById(id, this.bars));
+      bars = ids.map(id => getById(id, this.bars));
 
       this.bar_being_dragged = parent_bar_id;
 

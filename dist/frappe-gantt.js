@@ -474,7 +474,8 @@ class Bar {
     this.draw_bar();
     this.draw_progress_bar();
     this.draw_label();
-    this.draw_resize_handles();
+    //@TODO: enable the resize handles once we add the option for the user to disable them
+    // this.draw_resize_handles();
   }
 
   draw_bar() {
@@ -1142,7 +1143,7 @@ const getTasksDependencies = tasks => {
 
 const getTaskDependencies = (taskId, dependencies) => {
   let out = [];
-  let to_process = [task_id];
+  let to_process = [taskId];
   while (to_process.length) {
     const deps = to_process.reduce((acc, curr) => {
       acc = acc.concat(dependencies[curr]);
@@ -1283,7 +1284,9 @@ class Gantt {
     this.setup_tasks(tasks);
     // initialize with default view mode
     this.change_view_mode();
-    this.bind_events();
+
+    //@TODO: enable once we fix the resizing/popup
+    // this.bind_events();
   }
 
   setup_wrapper(element) {
@@ -1739,7 +1742,7 @@ class Gantt {
         parent_bar_id,
         ...this.get_all_dependent_tasks(parent_bar_id)
       ];
-      bars = ids.map(id => this.getById(id, this.bars));
+      bars = ids.map(id => getById(id, this.bars));
 
       this.bar_being_dragged = parent_bar_id;
 
