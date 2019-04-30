@@ -277,7 +277,7 @@ function $(expr, con) {
   return isString(expr) ? (con || document).querySelector(expr) : expr || null;
 }
 
-function createSVG$1(tag, attrs) {
+function createSVG(tag, attrs) {
   const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
   for (let attr in attrs) {
     if (attr === 'append_to') {
@@ -325,7 +325,7 @@ function getAnimationElement(
     return svgElement;
   }
 
-  const animateElement = createSVG$1('animate', {
+  const animateElement = createSVG('animate', {
     attributeName: attr,
     from,
     to,
@@ -438,15 +438,15 @@ class Bar {
       this.gantt.options.column_width *
         this.duration *
         (this.task.progress / 100) || 0;
-    this.group = createSVG$1('g', {
+    this.group = createSVG('g', {
       class: 'bar-wrapper ' + (this.task.custom_class || ''),
       'data-id': this.task.id
     });
-    this.bar_group = createSVG$1('g', {
+    this.bar_group = createSVG('g', {
       class: 'bar-group',
       append_to: this.group
     });
-    this.handle_group = createSVG$1('g', {
+    this.handle_group = createSVG('g', {
       class: 'handle-group',
       append_to: this.group
     });
@@ -478,7 +478,7 @@ class Bar {
   }
 
   draw_bar() {
-    this.$bar = createSVG$1('rect', {
+    this.$bar = createSVG('rect', {
       x: this.x,
       y: this.y,
       width: this.width,
@@ -498,7 +498,7 @@ class Bar {
 
   draw_progress_bar() {
     if (this.invalid) return;
-    this.$bar_progress = createSVG$1('rect', {
+    this.$bar_progress = createSVG('rect', {
       x: this.x,
       y: this.y,
       width: this.progress_width,
@@ -513,7 +513,7 @@ class Bar {
   }
 
   draw_label() {
-    createSVG$1('text', {
+    createSVG('text', {
       x: this.x + this.width / 2,
       y: this.y + this.height / 2,
       innerHTML: this.task.name,
@@ -530,7 +530,7 @@ class Bar {
     const bar = this.$bar;
     const handle_width = 8;
 
-    createSVG$1('rect', {
+    createSVG('rect', {
       x: bar.getX() + bar.getWidth() - 9,
       y: bar.getY() + 1,
       width: handle_width,
@@ -541,7 +541,7 @@ class Bar {
       append_to: this.handle_group
     });
 
-    createSVG$1('rect', {
+    createSVG('rect', {
       x: bar.getX() + 1,
       y: bar.getY() + 1,
       width: handle_width,
@@ -553,7 +553,7 @@ class Bar {
     });
 
     if (this.task.progress && this.task.progress < 100) {
-      this.$handle_progress = createSVG$1('polygon', {
+      this.$handle_progress = createSVG('polygon', {
         points: this.get_progress_polygon_points().join(','),
         class: 'handle progress',
         append_to: this.handle_group
@@ -592,7 +592,8 @@ class Bar {
       this.gantt.unselect_all();
       this.group.classList.toggle('active');
 
-      this.show_popup();
+      //@TODO: enable the tooltip once we fix it
+      //  this.show_popup();
     });
   }
 
@@ -882,7 +883,7 @@ class Arrow {
   }
 
   draw() {
-    this.element = createSVG$1('path', {
+    this.element = createSVG('path', {
       d: this.path,
       'data-from': this.from_task.task.id,
       'data-to': this.to_task.task.id
@@ -1207,6 +1208,19 @@ const buildSVG = element => {
   return svg;
 };
 
+const buildSVGLayers = svg => {
+  const SVGLayers = {};
+  const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+  // make group layers
+  for (let layer of layers) {
+    SVGLayers[layer] = createSVG('g', {
+      class: layer,
+      append_to: svg
+    });
+  }
+  return SVGLayers;
+};
+
 const buildPopupWrapper = document => {
   const wrapper = document.createElement('div');
   wrapper.classList.add('popup-wrapper');
@@ -1346,7 +1360,7 @@ class Gantt {
 
   render() {
     this.clear();
-    this.setup_layers();
+    this.layers = buildSVGLayers(this.$svg);
     this.make_grid();
     this.make_dates();
     this.make_bars();
@@ -1354,18 +1368,6 @@ class Gantt {
     this.map_arrows_on_bars();
     this.set_width();
     this.set_scroll_position();
-  }
-
-  setup_layers() {
-    this.layers = {};
-    const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
-    // make group layers
-    for (let layer of layers) {
-      this.layers[layer] = createSVG$1('g', {
-        class: layer,
-        append_to: this.$svg
-      });
-    }
   }
 
   make_grid() {
@@ -1383,7 +1385,7 @@ class Gantt {
       this.options.padding +
       (this.options.bar_height + this.options.padding) * this.tasks.length;
 
-    createSVG$1('rect', {
+    createSVG('rect', {
       x: 0,
       y: 0,
       width: grid_width,
@@ -1399,8 +1401,8 @@ class Gantt {
   }
 
   make_grid_rows() {
-    const rows_layer = createSVG$1('g', { append_to: this.layers.grid });
-    const lines_layer = createSVG$1('g', { append_to: this.layers.grid });
+    const rows_layer = createSVG('g', { append_to: this.layers.grid });
+    const lines_layer = createSVG('g', { append_to: this.layers.grid });
 
     const row_width = this.dates.length * this.options.column_width;
     const row_height = this.options.bar_height + this.options.padding;
@@ -1408,7 +1410,7 @@ class Gantt {
     let row_y = this.options.header_height + this.options.padding / 2;
 
     for (let task of this.tasks) {
-      createSVG$1('rect', {
+      createSVG('rect', {
         x: 0,
         y: row_y,
         width: row_width,
@@ -1417,7 +1419,7 @@ class Gantt {
         append_to: rows_layer
       });
 
-      createSVG$1('line', {
+      createSVG('line', {
         x1: 0,
         y1: row_y + row_height,
         x2: row_width,
@@ -1433,7 +1435,7 @@ class Gantt {
   make_grid_header() {
     const header_width = this.dates.length * this.options.column_width;
     const header_height = this.options.header_height + 10;
-    createSVG$1('rect', {
+    createSVG('rect', {
       x: 0,
       y: 0,
       width: header_width,
@@ -1468,7 +1470,7 @@ class Gantt {
         tick_class += ' thick';
       }
 
-      createSVG$1('path', {
+      createSVG('path', {
         d: `M ${tick_x} ${tick_y} v ${tick_height}`,
         class: tick_class,
         append_to: this.layers.grid
@@ -1498,7 +1500,7 @@ class Gantt {
         this.options.header_height +
         this.options.padding / 2;
 
-      createSVG$1('rect', {
+      createSVG('rect', {
         x,
         y,
         width,
@@ -1511,7 +1513,7 @@ class Gantt {
 
   make_dates() {
     for (let date of this.get_dates_to_draw()) {
-      createSVG$1('text', {
+      createSVG('text', {
         x: date.lower_x,
         y: date.lower_y,
         innerHTML: date.lower_text,
@@ -1520,7 +1522,7 @@ class Gantt {
       });
 
       if (date.upper_text) {
-        const $upper_text = createSVG$1('text', {
+        const $upper_text = createSVG('text', {
           x: date.upper_x,
           y: date.upper_y,
           innerHTML: date.upper_text,

@@ -188,7 +188,8 @@ export default class Bar {
       this.gantt.unselect_all();
       this.group.classList.toggle('active');
 
-      this.show_popup();
+      //@TODO: enable the tooltip once we fix it
+      //  this.show_popup();
     });
   }
 
